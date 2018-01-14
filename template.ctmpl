@@ -1,0 +1,36 @@
+{{range services}} {{$name := .Name}} {{$service := service .Name}}
+{{if keyExists (print "key/" $name)}}
+# For protecting the Service using Authorization header
+map $http_authorization $auth_{{$name}} {
+  default 0;
+  "{{key (print "key/" $name)}}"  1;
+}{{end}}
+upstream {{$name}} {
+  zone upstream-{{$name}} 64k;
+  {{range $service}}server {{.Address}}:{{.Port}} max_fails=3 fail_timeout=60 weight=1;
+  {{else}}server 127.0.0.1:65535; # force a 502{{end}}
+}{{end}}
+
+server {
+  listen 80 default_server;
+  location / {
+    root /usr/share/nginx/html/;
+    index index.html;
+  }
+  location /stub_status {
+    stub_status;
+  }
+  {{range services}} {{$name := .Name}}
+  location /{{$name}} {
+    {{if keyExists (print "key/" $name)}}
+    # Authenticate the request for this Service
+    if ($auth_{{$name}} = 0) {
+      return 401;
+    }{{end}}
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://{{$name}}/;
+  }
+{{end}}
+}

@@ -2,8 +2,8 @@
 
 Nginx is popular web server, reverse proxy, and load balancer. Consul is a Service discovery platform and Consul-Template, a generic template rendering tool that provides a convenient way to populate values from Consul into the file system using a daemon.
 
-###Usage
-####Test Env
+### Usage
+#### Test Env
 First you need a working Consul Server node. Skip this section if you already have a Consul Server.
 You can run a test Consul node on your box with ```progrium/consul``` Docker image:
 ```
@@ -15,7 +15,7 @@ Next add one test Service into Consul node:
 curl -X PUT -d '{"ID":"ip-api1","Name":"ip-api","Address":"ip-api.com","Port":80,"Tags":["test"]}' localhost:8500/v1/agent/service/register
 ```
 
-####The proxy
+#### The proxy
 After cloning the repo, build and run the Docker image on your workstation:
 ```
 git clone https://github.com/rmin/nginx-consul-template.git
@@ -44,7 +44,7 @@ curl 'http://localhost/ip-api'
 
 If you add new services into Consul server, changes will take effect on the proxy in few seconds.
 
-####Authorization header
+#### Authorization header
 For protecting any service with an auth-key, just create a key for the service on Consul server:
 ```
 curl -X PUT -d "K3B9k366hdaFg8L54sXS56" localhost:8500/v1/kv/key/ip-api
